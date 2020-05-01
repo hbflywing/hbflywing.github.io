@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/4.7.0/echarts.min.js"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 1800px;height:768px; margin: 0 auto;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+		const BASE_TIME = '2020-02-20';
+		
+		var data = [
+			'2020-04-09 06:11:00',
+			'2020-04-14 06:03:00',
+			'2020-04-16 06:16:00',
+			'2020-04-17 06:30:00',
+			'2020-04-18 06:31:00',
+			'2020-04-21 06:20:00',
+			'2020-04-22 06:22:00',
+			'2020-04-24 06:24:00',
+			'2020-04-28 06:18:00',
+			'2020-04-29 06:34:00',
+			'2020-04-30 06:20:00'
+		]
+		var meY = [];
+		var start = moment('2020-04-01');
+		var end = moment('2020-04-30');
+		var monthStepX = [];
+		
+		do{
+			monthStepX.push(start.format('YYYY-MM-DD'));
+			start.add(1,'d');
+		}while(start <= end)
+		
+		for(let item of monthStepX){
+			var f = false;
+			for(let workDate of data){
+			    var mWorkDate  = moment(workDate)
+				if(moment(item).isSame(mWorkDate,'day')){
+					console.log(moment(item).format('YYYY-MM-DD')+'---->'+ mWorkDate.format('YYYY-MM-DD')+ moment(item).isSame(mWorkDate,'day'))
+					meY.push(`${BASE_TIME} ${mWorkDate.format('YYYY-MM-DD HH:mm').substr(11, 10)}`)
+					f = true;
+				}
+			}
+			if(!f){
+				meY.push(`${BASE_TIME} 05:00`);
+			}
+		}
+
+		console.log('monthStepX:   ' +   monthStepX);
+		console.log('data:   ' +   data);
+		
+		console.log('meY-----'+meY);
+
+        // 指定图表的配置项和数据
+        var option = {
+			title:{
+				show:true,
+				text: "胖胖的4月周报"
+			
+			},
+			tooltip:{
+				trigger:'axis',
+				axisPointer:{
+					type:'line'
+				},
+				formatter:function(params){
+					console.log('tips---->'+console.dir(params))
+					return params[0].axisValue + " " +moment(params[0].data).format('HH:mm')
+				}
+			},
+			 xAxis: {
+			   type: 'category',
+			   data: monthStepX,
+			   axisLabel: {
+					interval: 0,
+					formatter: function (value) {
+					   return (moment(value).format('MM-DD'))
+					}
+				}
+			 },
+			 yAxis: {
+			   type: 'time',
+			   min: `${BASE_TIME} 05:00:00`,
+			   max: `${BASE_TIME} 07:00:00`,
+			   axisLabel:{
+				 formatter: function (value) {
+					console.log('value------->'+ moment(value).format('YYYY-MM-DD HH:mm'))
+				   return (moment(value).format('YYYY-MM-DD HH:mm')).substr(11,20)
+				 }
+			   }
+			 },
+			 series: [
+			   {
+				 type: 'line',
+				 symbolSize: '6',
+				 data: meY,
+				 markLine:{
+				   symbol: 'none',
+				   data: [
+					 {
+					   name: '上班',
+					   yAxis: `${BASE_TIME} 08:30`
+					 },
+				   ],
+				   label:{
+					 formatter: '{b}',
+				   }
+				 },
+				 label:{
+					show:true
+				 }
+			   }
+			 ]
+			}
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+</html>
